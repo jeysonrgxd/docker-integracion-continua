@@ -16,8 +16,16 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Build docker image
-      run: | 
-        docker build --platform linux --tag jeysondev505/websitedockerci:latest -f dockerfile .
+      run: |
+        docker build --platform linux \
+          --tag jeysondev505/websitedockerci:${{ github.sha }} \
+          --tag jeysondev505/websitedockerci:latest \
+          -f dockerfile .
     - name: Publish docker image
       run: |
         docker push jeysondev505/websitedockerci:latest
+    - name: Trigger Render Deploy
+      run: |
+        curl -X POST "$RENDER_DEPLOY_HOOK"
+      env:
+        RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
